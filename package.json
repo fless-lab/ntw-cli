@@ -1,0 +1,23 @@
+{
+  "name": "@fless-lab/ntw-cli",
+  "version": "1.0.0",
+  "description": "Node TypeScript Wizard - CLI for scaffolding API applications",
+  "main": "cli.js",
+  "bin": {
+    "ntw": "./cli.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fless-lab/ntw-cli.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "dependencies": {
+    "commander": "^8.0.0",
+    "simple-git": "^2.0.0",
+    "chalk": "^4.0.0",
+    "figlet": "^1.5.0",
+    "ora": "^5.4.0"
+  }
+}
