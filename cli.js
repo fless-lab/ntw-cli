@@ -55,18 +55,20 @@ program
         return simpleGit(projectPath).init();
       })
       .then(() => {
-        spinner.text = 'Installing dependencies...';
-
+        spinner.succeed('Project configured successfully.');
+        
         const installSpinner = ora('Step 1/2: Installing npm dependencies...').start();
+        
         exec('npm install', { cwd: projectPath }, (err, stdout, stderr) => {
           if (err) {
             installSpinner.fail('Failed to install npm dependencies.');
             console.error(chalk.red(`Error: ${stderr}`));
             return;
           }
+          
           installSpinner.succeed('Step 1/2: npm dependencies installed successfully.');
 
-          installSpinner.text = 'Step 2/2: Finalizing project setup...';
+          installSpinner.start('Step 2/2: Finalizing project setup...');
           setTimeout(() => {
             installSpinner.succeed('Step 2/2: Project setup completed.');
             
