@@ -74,10 +74,12 @@ program
 
             const newGit = simpleGit(projectPath);
 
-            newGit.add('.')
-              .commit('Initial setup completed with NTW CLI 🎩✨', () => {
-                showTips(projectName);
-              });
+            newGit.add('.', () => {
+              showTips(projectName);
+            })
+            //   .commit('Initial setup completed with NTW CLI 🎩✨', () => {
+            //     showTips(projectName);
+            // });
           }, 1000);
         });
       })
