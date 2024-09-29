@@ -56,26 +56,38 @@ program
       })
       .then(() => {
         spinner.succeed('Project configured successfully.');
-        
-        const installSpinner = ora('Step 1/2: Installing npm dependencies...').start();
-        
+
+        const installSpinner = ora('Step 1/2: Installing dependencies...').start();
+
         exec('npm install', { cwd: projectPath }, (err, stdout, stderr) => {
           if (err) {
-            installSpinner.fail('Failed to install npm dependencies.');
+            installSpinner.fail('Failed to install dependencies.');
             console.error(chalk.red(`Error: ${stderr}`));
             return;
           }
-          
-          installSpinner.succeed('Step 1/2: npm dependencies installed successfully.');
+
+          installSpinner.succeed('Step 1/2: Dependencies installed successfully.');
 
           installSpinner.start('Step 2/2: Finalizing project setup...');
           setTimeout(() => {
             installSpinner.succeed('Step 2/2: Project setup completed.');
-            
+
             const newGit = simpleGit(projectPath);
+
+            // newGit.add('.')
+            //   .commit('Initial setup completed with NTW CLI 🎩✨', () => {
+            //     showTips(projectName);
+            //   });
+
             newGit.add('.')
-              .commit('Initial setup completed with NTW CLI 🎩✨', () => {
+              .then(() => {
+                return newGit.commit('Initial setup completed with NTW CLI 🎩✨');
+              })
+              .then(() => {
                 showTips(projectName);
+              })
+              .catch((commitErr) => {
+                console.error(chalk.red('Error during git commit:', commitErr));
               });
           }, 1000);
         });
