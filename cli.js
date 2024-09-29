@@ -57,7 +57,7 @@ program
       .then(() => {
         spinner.succeed('Project configured successfully.');
 
-        const installSpinner = ora('Step 1/2: Installing dependencies...').start();
+        const installSpinner = ora('Step 1/2: Installing project dependencies. This may take a few moments...').start();
 
         exec('npm install', { cwd: projectPath }, (err, stdout, stderr) => {
           if (err) {
@@ -66,7 +66,7 @@ program
             return;
           }
 
-          installSpinner.succeed('Step 1/2: Dependencies installed successfully.');
+          installSpinner.succeed('Step 1/2: All dependencies have been installed successfully.');
 
           installSpinner.start('Step 2/2: Finalizing project setup...');
           setTimeout(() => {
@@ -74,20 +74,9 @@ program
 
             const newGit = simpleGit(projectPath);
 
-            // newGit.add('.')
-            //   .commit('Initial setup completed with NTW CLI 🎩✨', () => {
-            //     showTips(projectName);
-            //   });
-
             newGit.add('.')
-              .then(() => {
-                return newGit.commit('Initial setup completed with NTW CLI 🎩✨');
-              })
-              .then(() => {
+              .commit('Initial setup completed with NTW CLI 🎩✨', () => {
                 showTips(projectName);
-              })
-              .catch((commitErr) => {
-                console.error(chalk.red('Error during git commit:', commitErr));
               });
           }, 1000);
         });
