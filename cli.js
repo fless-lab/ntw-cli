@@ -9,6 +9,8 @@ const chalk = require('chalk');
 const figlet = require('figlet');
 const ora = require('ora');
 
+const packageJson = require('./package.json');
+
 function showHeader() {
   console.log(
     chalk.blue(
@@ -23,11 +25,16 @@ function showTips(projectName) {
   console.log(chalk.blue('\n✨✨ Project Setup Complete ✨✨\n'));
   console.log(chalk.green(`Your project ${projectName} is ready to go! 🎉`));
   console.log(chalk.magenta('Here are some tips from the author to get you started:'));
-  console.log(chalk.cyan(`\n1. To launch the project (in Docker):\n   ${chalk.bold('npm run docker:launch')}`));
-  console.log(chalk.cyan('2. Explore the project structure.'));
-  console.log(chalk.cyan('3. Don’t forget to set up your environment variables!'));
+  console.log(chalk.cyan(`\n1. To launch the project (in Docker - development):\n   ${chalk.bold('npm run docker:launch')}`));
+  console.log(chalk.cyan(`2. To launch the project (in Docker - production):\n   ${chalk.bold('npm run docker:launch:prod')}`));
+  console.log(chalk.cyan('3. Explore the project structure.'));
+  console.log(chalk.cyan('4. Don’t forget to set up your environment variables!'));
   console.log(chalk.yellow('\nHappy coding! 💻🚀'));
 }
+
+program
+  .version(packageJson.version)
+  .description('NTW CLI - Node TypeScript Wizard');
 
 program
   .command('init [projectName]')
@@ -50,19 +57,25 @@ program
       .then(() => {
         spinner.text = 'Installing dependencies...';
 
+        const installSpinner = ora('Step 1/2: Installing npm dependencies...').start();
         exec('npm install', { cwd: projectPath }, (err, stdout, stderr) => {
           if (err) {
-            spinner.fail('Failed to install dependencies.');
+            installSpinner.fail('Failed to install npm dependencies.');
             console.error(chalk.red(`Error: ${stderr}`));
             return;
           }
-          spinner.succeed('Dependencies installed successfully!');
+          installSpinner.succeed('Step 1/2: npm dependencies installed successfully.');
 
-          const newGit = simpleGit(projectPath);
-          newGit.add('.')
-            .commit('Initial setup completed with NTW CLI 🎩✨', () => {
-              showTips(projectName);
-            });
+          installSpinner.text = 'Step 2/2: Finalizing project setup...';
+          setTimeout(() => {
+            installSpinner.succeed('Step 2/2: Project setup completed.');
+            
+            const newGit = simpleGit(projectPath);
+            newGit.add('.')
+              .commit('Initial setup completed with NTW CLI 🎩✨', () => {
+                showTips(projectName);
+              });
+          }, 1000);
         });
       })
       .catch((err) => {
