@@ -15,7 +15,7 @@ export function initializeProject(projectName: string, showTips: (projectName: s
       spinner.text = 'Configuring project...';
 
       fs.rmSync(path.join(projectPath, '.git'), { recursive: true, force: true });
-    console.log("before init git : ",projectPath)
+
       return simpleGit(projectPath).init();
     })
     .then(() => {
