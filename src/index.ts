@@ -1,3 +1,5 @@
+#!/usr/bin/env
+
 import { program } from 'commander';
 import { showHeader, showTips } from './utils';
 import { initializeProject } from './utils';
