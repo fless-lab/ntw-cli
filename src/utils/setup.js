@@ -1,13 +1,14 @@
 import path from 'path';
-import simpleGit, { SimpleGit } from 'simple-git';
+import simpleGit from 'simple-git';
 import { exec } from 'child_process';
 import fs from 'fs';
 import chalk from 'chalk';
 import ora from 'ora';
+import { createConfigFile } from './config.js';
 
-export function initializeProject(projectName: string, showTips: (projectName: string) => void): void {
+export function initializeProject(projectName, showTips) {
   const projectPath = path.join(process.cwd(), projectName);
-  const git: SimpleGit = simpleGit();
+  const git = simpleGit();
   const spinner = ora(`Setting up your project: ${projectName}...`).start();
 
   git.clone('https://github.com/fless-lab/ntw-init.git', projectPath)
@@ -33,6 +34,9 @@ export function initializeProject(projectName: string, showTips: (projectName: s
         installSpinner.succeed('Step 1/2: All dependencies have been installed successfully.');
 
         installSpinner.start('Step 2/2: Finalizing project setup...');
+
+        createConfigFile(projectPath, projectName);
+
         setTimeout(() => {
           installSpinner.succeed('Step 2/2: Project setup completed.');
 

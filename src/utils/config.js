@@ -3,15 +3,15 @@ import fs from 'fs';
 import simpleGit from 'simple-git';
 import chalk from 'chalk';
 
-export function encode(identifier: string): string {
+function encode(identifier) {
   return Buffer.from(identifier).toString('base64');
 }
 
-export function decode(encodedIdentifier: string): string {
+function decode(encodedIdentifier) {
   return Buffer.from(encodedIdentifier, 'base64').toString('utf-8');
 }
 
-export function isNtwProject(projectPath: string): boolean {
+export function isNtwProject(projectPath) {
   const configFilePath = path.join(projectPath, 'ntw.config.json');
   
   if (!fs.existsSync(configFilePath)) {
@@ -25,7 +25,7 @@ export function isNtwProject(projectPath: string): boolean {
   return decodedIdentifier.includes('was made with NTW on');
 }
 
-export async function createConfigFile(projectPath: string, projectName: string): Promise<void> {
+export async function createConfigFile(projectPath, projectName) {
   const date = new Date().toUTCString();
   const identifier = `${projectName} was made with NTW on ${date}`;
   const encodedIdentifier = encode(identifier);
@@ -47,3 +47,4 @@ export async function createConfigFile(projectPath: string, projectName: string)
     console.error(chalk.red('Error creating config file:', err));
   }
 }
+

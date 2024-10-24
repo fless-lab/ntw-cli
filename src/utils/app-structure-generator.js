@@ -3,14 +3,14 @@ import path from 'path';
 import chalk from 'chalk';
 
 const templates = {
-  controller: (appName: string) => `
+  controller: (appName) => `
   /* eslint-disable @typescript-eslint/no-unused-vars */
   import { Request, Response, NextFunction } from 'express';
   
   export class ${convertToPascalCase(appName)}Controller {}
   `,
 
-  model: (appName: string) => `
+  model: (appName) => `
 import { BaseModel, createBaseSchema } from '@nodesandbox/repo-framework';
 import { I${convertToPascalCase(appName)}Model } from '../types';
 
@@ -36,7 +36,7 @@ const ${convertToPascalCase(appName)}Model = new BaseModel<I${convertToPascalCas
 export { ${convertToPascalCase(appName)}Model };
 `,
 
-  repository: (appName: string) => `
+  repository: (appName) => `
 import { Model } from 'mongoose';
 import { I${convertToPascalCase(appName)}Model } from '../types';
 import { BaseRepository } from '@nodesandbox/repo-framework';
@@ -48,7 +48,7 @@ export class ${convertToPascalCase(appName)}Repository extends BaseRepository<I$
 }
 `,
 
-  service: (appName: string) => `
+  service: (appName) => `
 import { I${convertToPascalCase(appName)}Model } from '../types';
 import { ${convertToPascalCase(appName)}Repository } from '../repositories';
 import { ${convertToPascalCase(appName)}Model } from '../models';
@@ -75,7 +75,7 @@ class ${convertToPascalCase(appName)}Service extends BaseService<I${convertToPas
 export default new ${convertToPascalCase(appName)}Service();
 `,
 
-  types: (appName: string) => `
+  types: (appName) => `
 import { IBaseModel } from '@nodesandbox/repo-framework';
 import { Document } from 'mongoose';
 
@@ -86,7 +86,7 @@ export interface I${convertToPascalCase(appName)} {
 export interface I${convertToPascalCase(appName)}Model extends I${convertToPascalCase(appName)}, IBaseModel, Document {}
 `,
 
-  routes: (appName: string) => `
+  routes: (appName) => `
 import { Router } from 'express';
 import { ${convertToPascalCase(appName)}Controller } from '../controllers';
 
@@ -98,10 +98,10 @@ const router = Router();
 export default router;
 `,
 
-  folderIndex: (appName: string, folder: string) => {
-    const exports: Record<string, string> = {
+  folderIndex: (appName, folder) => {
+    const exports = {
       controllers: `export * from './${convertToKebabCase(appName)}.controller';`,
-      model: `export * from './${convertToKebabCase(appName)}.model';`,
+      models: `export * from './${convertToKebabCase(appName)}.model';`,
       repositories: `export * from './${convertToKebabCase(appName)}.repo';`,
       routes: `export { default as ${convertToPascalCase(appName)}Routes } from './${convertToKebabCase(appName)}.routes';`,
       services: `export { default as ${convertToPascalCase(appName)}Service } from './${convertToKebabCase(appName)}.service';`,
@@ -119,15 +119,15 @@ export * from './routes';
 `,
 };
 
-async function generateAppStructure(options: { appName: string; baseDir?: string; includeTests?: boolean }) {
+export async function generateAppStructure(options) {
   const { appName, baseDir = 'apps', includeTests = true } = options;
   const extension = 'ts';
 
   const appPath = path.join(process.cwd(), baseDir, appName);
   const folders = [
     'controllers',
-    'middleware',
-    'model',
+    'middlewares',
+    'models',
     'repositories',
     'routes',
     'services',
@@ -148,7 +148,7 @@ async function generateAppStructure(options: { appName: string; baseDir?: string
         case 'controllers':
           await generateFile(folderPath, `${appName}.controller.${extension}`, templates.controller(appName));
           break;
-        case 'model':
+        case 'models':
           await generateFile(folderPath, `${appName}.model.${extension}`, templates.model(appName));
           break;
         case 'repositories':
@@ -183,39 +183,32 @@ async function generateAppStructure(options: { appName: string; baseDir?: string
   }
 }
 
-async function generateFile(folderPath: string, filename: string, content: string) {
+async function generateFile(folderPath, filename, content) {
   const filePath = path.join(folderPath, filename);
   await fs.writeFile(filePath, content.trim());
   console.log(chalk.green(`  ✓ Created file: ${filename}`));
 }
 
-function capitalize(str: string): string {
+function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-function convertToPascalCase(str: string): string {
+function convertToPascalCase(str) {
   return str
     .replace(/[-_](.)/g, (_, char) => char.toUpperCase())
     .replace(/^(.)/, (char) => char.toUpperCase());
 }
 
-function convertToCamelCase(str: string): string {
+function convertToCamelCase(str) {
   return str
     .replace(/[-_](.)/g, (_, char) => char.toUpperCase())
     .replace(/^(.)/, (char) => char.toLowerCase());
 }
 
-function convertToConstantCase(str: string): string {
+function convertToConstantCase(str) {
   return str.replace(/[-_]/g, '_').toUpperCase();
 }
 
-function convertToKebabCase(str: string): string {
+function convertToKebabCase(str) {
   return str.replace(/[_\s]/g, '-').toLowerCase();
 }
-
-export { generateAppStructure };
-
-generateAppStructure({
-  appName: 'user-manager',
-  baseDir: '.'
-});

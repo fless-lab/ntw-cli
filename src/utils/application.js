@@ -1,16 +1,16 @@
 import ora from 'ora';
 import chalk from 'chalk';
-import { isNtwProject, createConfigFile } from './config';
-import { generateAppStructure } from './app-structure-generator';
+import { isNtwProject } from './config.js';
+import { generateAppStructure } from './app-structure-generator.js';
 
-export function generateApplication(type: string, name: string): void {
-  const typeMapping: { [key: string]: string } = {
+export function generateApplication(type, name) {
+  const typeMapping = {
     application: 'application',
     a: 'application',
     app: 'application',
   };
 
-  const normalizedType: string = typeMapping[type] || type;
+  const normalizedType = typeMapping[type] || type;
 
   if (normalizedType === 'application') {
     const genAppSpinner = ora('Generating a new NTW application...\n').start();
@@ -29,7 +29,7 @@ export function generateApplication(type: string, name: string): void {
       genAppSpinner.succeed(`New ${name} NTW Application successfully generated.`);
     } catch (error) {
       genAppSpinner.fail('Failed to generate a new NTW application.');
-      console.error(chalk.red(`Error: ${(error as any).message}`));
+      console.error(chalk.red(`Error: ${error.message}`));
     }
   }
 }

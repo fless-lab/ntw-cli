@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import figlet from 'figlet';
 
-export function showHeader(): void {
+export function showHeader() {
   console.log(
     chalk.blue(
       figlet.textSync('NTW CLI', { horizontalLayout: 'full' })
@@ -11,7 +11,7 @@ export function showHeader(): void {
   console.log(chalk.yellow('Let’s create something magical... 🪄'));
 }
 
-export function showTips(projectName: string): void {
+export function showTips(projectName) {
   console.log(chalk.blue('\n✨✨ Project Setup Complete ✨✨\n'));
   console.log(chalk.green(`Your project ${projectName} is ready to go! 🎉`));
   console.log(chalk.magenta('Here are some tips from the author to get you started:'));
