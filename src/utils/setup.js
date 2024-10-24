@@ -1,12 +1,37 @@
 import path from 'path';
 import simpleGit from 'simple-git';
 import { exec } from 'child_process';
-import fs from 'fs';
+import fs, { writeFile } from 'fs';
 import chalk from 'chalk';
 import ora from 'ora';
 import { createConfigFile } from './config.js';
 
-export function initializeProject(projectName, showTips) {
+const noDemoRouterIndexFileContent = `import { Router } from 'express';
+import { DevRoutes } from 'modules/features/dev';
+
+export class RouterModule {
+  private static router: Router;
+
+  public static getRouter(): Router {
+    if (!RouterModule.router) {
+      RouterModule.router = Router();
+      RouterModule.initializeRoutes();
+    }
+    return RouterModule.router;
+  }
+
+  private static initializeRoutes(): void {
+    RouterModule.router.use('', DevRoutes);
+  }
+}
+`
+
+const noDemoAppsIndexContent = `/**
+ * Export all the apps routes here
+ */
+`;
+
+export function initializeProject(projectName, includeDemo, showTips) {
   const projectPath = path.join(process.cwd(), projectName);
   const git = simpleGit();
   const spinner = ora(`Setting up your project: ${projectName}...`).start();
@@ -47,6 +72,33 @@ export function initializeProject(projectName, showTips) {
           });
         }, 1000);
       });
+    })
+    .then (() => {
+      if(!includeDemo){
+        const appsIndexPath = projectPath + '/src/apps/index.ts';
+        fs.writeFile(appsIndexPath, noDemoAppsIndexContent, 'utf-8', (error) => {
+          if (error) {
+            console.error('Error writing file:', error);
+            return;
+          }
+        });
+  
+        const pathToDemo = projectPath + '/src/apps/demo';
+        fs.rm(pathToDemo, { recursive: true, force: true }, (error) => {
+          if (error) {
+            console.error('Error removing file:', error);
+            return;
+          }
+        });
+  
+        const routerIndexPath = projectPath + '/src/modules/router/index.ts';
+        fs.writeFile(routerIndexPath, noDemoRouterIndexFileContent, 'utf-8', (error) => {
+          if (error) {
+            console.error('Error writing file:', error);
+            return;
+          }
+        });
+      }
     })
     .catch((err) => {
       spinner.fail('Error during project setup.');

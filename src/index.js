@@ -18,10 +18,13 @@ program
 program
   .command('init [projectName]')
   .alias('i')
-  .description('Initialize a new project with TypeScript support')
-  .action((projectName = 'new-ntw-project') => {
+  .description(`Initialize a new project with TypeScript support. 
+    Add the '--no-demo' flag to exclude the demo application from your project.`)
+  .option('--no-demo', 'Do not include the demo application in this project.')
+  .action((projectName = 'new-ntw-project', options) => {
     showHeader();
-    initializeProject(projectName, showTips);
+    const includeDemo= options.demo; 
+    initializeProject(projectName, includeDemo, showTips);
   });
 
 program
