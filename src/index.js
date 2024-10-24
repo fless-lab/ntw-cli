@@ -4,8 +4,9 @@ import { Command } from 'commander';
 import { showHeader, showTips } from './utils/messages.js';
 import { initializeProject } from './utils/setup.js';
 import { generateApplication } from './utils/application.js';
-import packageJson from '../package.json' assert { type: 'json' };
+import { readFileSync } from 'fs';
 
+const packageJson = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf-8'));
 const { version } = packageJson;
 
 const program = new Command();
