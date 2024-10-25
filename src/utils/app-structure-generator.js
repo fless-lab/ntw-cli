@@ -3,15 +3,13 @@ import path from 'path';
 import chalk from 'chalk';
 
 const templates = {
-  controller: (appName) => `
-  /* eslint-disable @typescript-eslint/no-unused-vars */
-  import { Request, Response, NextFunction } from 'express';
-  
-  export class ${convertToPascalCase(appName)}Controller {}
-  `,
+  controller: (appName) => `/* eslint-disable @typescript-eslint/no-unused-vars */
+import { Request, Response, NextFunction } from 'express';
 
-  model: (appName) => `
-import { BaseModel, createBaseSchema } from '@nodesandbox/repo-framework';
+export class ${convertToPascalCase(appName)}Controller {}
+`,
+
+  model: (appName) => `import { BaseModel, createBaseSchema } from '@nodesandbox/repo-framework';
 import { I${convertToPascalCase(appName)}Model } from '../types';
 
 const ${convertToConstantCase(appName)}_MODEL_NAME = '${convertToPascalCase(appName)}';
@@ -36,8 +34,7 @@ const ${convertToPascalCase(appName)}Model = new BaseModel<I${convertToPascalCas
 export { ${convertToPascalCase(appName)}Model };
 `,
 
-  repository: (appName) => `
-import { Model } from 'mongoose';
+  repository: (appName) => `import { Model } from 'mongoose';
 import { I${convertToPascalCase(appName)}Model } from '../types';
 import { BaseRepository } from '@nodesandbox/repo-framework';
 
@@ -48,15 +45,19 @@ export class ${convertToPascalCase(appName)}Repository extends BaseRepository<I$
 }
 `,
 
-  service: (appName) => `
-import { I${convertToPascalCase(appName)}Model } from '../types';
+  service: (appName) => `import { I${convertToPascalCase(appName)}Model } from '../types';
 import { ${convertToPascalCase(appName)}Repository } from '../repositories';
 import { ${convertToPascalCase(appName)}Model } from '../models';
 import { BaseService } from '@nodesandbox/repo-framework';
 
-class ${convertToPascalCase(appName)}Service extends BaseService<I${convertToPascalCase(appName)}Model, ${convertToPascalCase(appName)}Repository> {
+class ${convertToPascalCase(appName)}Service extends BaseService<
+  I${convertToPascalCase(appName)}Model,
+  ${convertToPascalCase(appName)}Repository
+> {
   constructor() {
-    const ${convertToCamelCase(appName)}Repo = new ${convertToPascalCase(appName)}Repository(${convertToPascalCase(appName)}Model);
+    const ${convertToCamelCase(appName)}Repo = new ${convertToPascalCase(appName)}Repository(
+      ${convertToPascalCase(appName)}Model
+    );
     super(${convertToCamelCase(appName)}Repo, true, [
       /*'attribute_to_populate'*/
     ]); // This will populate the entity field
@@ -75,19 +76,20 @@ class ${convertToPascalCase(appName)}Service extends BaseService<I${convertToPas
 export default new ${convertToPascalCase(appName)}Service();
 `,
 
-  types: (appName) => `
-import { IBaseModel } from '@nodesandbox/repo-framework';
+  types: (appName) => `import { IBaseModel } from '@nodesandbox/repo-framework';
 import { Document } from 'mongoose';
 
 export interface I${convertToPascalCase(appName)} {
   name: string;
 }
 
-export interface I${convertToPascalCase(appName)}Model extends I${convertToPascalCase(appName)}, IBaseModel, Document {}
+export interface I${convertToPascalCase(appName)}Model
+  extends I${convertToPascalCase(appName)},
+    IBaseModel,
+    Document {}
 `,
 
-  routes: (appName) => `
-import { Router } from 'express';
+  routes: (appName) => `import { Router } from 'express';
 import { ${convertToPascalCase(appName)}Controller } from '../controllers';
 
 const router = Router();
@@ -100,18 +102,17 @@ export default router;
 
   folderIndex: (appName, folder) => {
     const exports = {
-      controllers: `export * from './${convertToKebabCase(appName)}.controller';`,
-      models: `export * from './${convertToKebabCase(appName)}.model';`,
-      repositories: `export * from './${convertToKebabCase(appName)}.repo';`,
-      routes: `export { default as ${convertToPascalCase(appName)}Routes } from './${convertToKebabCase(appName)}.routes';`,
-      services: `export { default as ${convertToPascalCase(appName)}Service } from './${convertToKebabCase(appName)}.service';`,
-      types: `export * from './${convertToKebabCase(appName)}';`,
+      controllers: `export * from './${convertToKebabCase(appName)}.controller';\n`,
+      models: `export * from './${convertToKebabCase(appName)}.model';\n`,
+      repositories: `export * from './${convertToKebabCase(appName)}.repo';\n`,
+      routes: `export { default as ${convertToPascalCase(appName)}Routes } from './${convertToKebabCase(appName)}.routes';\n`,
+      services: `export { default as ${convertToPascalCase(appName)}Service } from './${convertToKebabCase(appName)}.service';\n`,
+      types: `export * from './${convertToKebabCase(appName)}';\n`,
     };
     return exports[folder] || '';
   },
 
-  rootIndex: () => `
-/**
+  rootIndex: () => `/**
  * The only thing that needs to be exported here is the router
  */
 
@@ -185,7 +186,7 @@ export async function generateAppStructure(options) {
 
 async function generateFile(folderPath, filename, content) {
   const filePath = path.join(folderPath, filename);
-  await fs.writeFile(filePath, content.trim());
+  await fs.writeFile(filePath, content);
   console.log(chalk.green(`  ✓ Created file: ${filename}`));
 }
 

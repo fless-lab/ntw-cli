@@ -1,9 +1,11 @@
-import ora from 'ora';
 import chalk from 'chalk';
-import { isNtwProject } from './config.js';
+import { getNtwConfig } from './config.js';
 import { generateAppStructure } from './app-structure-generator.js';
+import inquirer from 'inquirer';
+import fs from 'fs';
+import path from 'path';
 
-export function generateApplication(type, name) {
+export async function generateApplication(type, name) {
   const typeMapping = {
     application: 'application',
     a: 'application',
@@ -13,23 +15,49 @@ export function generateApplication(type, name) {
   const normalizedType = typeMapping[type] || type;
 
   if (normalizedType === 'application') {
-    const genAppSpinner = ora('Generating a new NTW application...\n').start();
-
     try {
-      if (!isNtwProject(process.cwd())) {
-        throw new Error('Current directory is not an NTW project. Please execute this command at the root of an NTW project with a valid ntw.config.json file.');
+      const { valid, config } = getNtwConfig(process.cwd());
+
+      if (valid) {
+        const baseDir = config['apps-path'];
+
+        // Check if the app exists and get user's decision
+        const shouldProceed = await checkIfAppExists(name, baseDir);
+
+        if (shouldProceed) {
+          generateAppStructure({
+            appName: name,
+            baseDir,
+          });
+          console.log(`Application "${name}" generated successfully.`);
+        } else {
+          console.log('Operation aborted. No changes were made.');
+        }
       }
-
-      genAppSpinner.text = 'Creating folder structure...\n';
-      generateAppStructure({
-        appName: name,
-        baseDir: './src/apps',
-      });
-
-      genAppSpinner.succeed(`New ${name} NTW Application successfully generated.`);
     } catch (error) {
-      genAppSpinner.fail('Failed to generate a new NTW application.');
+      console.log('Failed to generate a new NTW application.');
       console.error(chalk.red(`Error: ${error.message}`));
     }
   }
+}
+
+
+export async function checkIfAppExists(appName, baseDir){
+  const appPath = path.join(baseDir, appName);
+  
+  if (fs.existsSync(appPath)) {
+    const { shouldOverride } = await inquirer.prompt([
+      {
+        type: 'confirm',
+        name: 'shouldOverride',
+        message: `An application named "${appName}" already exists at the specified path. Do you want to override its contents?\n`,
+        default: false,
+      },
+    ]);
+
+    return shouldOverride;
+  }
+
+  // If the path does not exist, return true to proceed with generation
+  return true;
 }

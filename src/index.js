@@ -4,8 +4,9 @@ import { Command } from 'commander';
 import { showHeader, showTips } from './utils/messages.js';
 import { initializeProject } from './utils/setup.js';
 import { generateApplication } from './utils/application.js';
-import packageJson from '../package.json' assert { type: 'json' };
+import { readFileSync } from 'fs';
 
+const packageJson = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf-8'));
 const { version } = packageJson;
 
 const program = new Command();
@@ -17,10 +18,13 @@ program
 program
   .command('init [projectName]')
   .alias('i')
-  .description('Initialize a new project with TypeScript support')
-  .action((projectName = 'new-ntw-project') => {
+  .description(`Initialize a new project with TypeScript support. 
+    Add the '--no-demo' flag to exclude the demo application from your project.`)
+  .option('--no-demo', 'Do not include the demo application in this project.')
+  .action((projectName = 'new-ntw-project', options) => {
     showHeader();
-    initializeProject(projectName, showTips);
+    const includeDemo= options.demo; 
+    initializeProject(projectName, includeDemo, showTips);
   });
 
 program
@@ -37,8 +41,8 @@ Type can be one of:
   - a, app: Aliases for "application"`
   )
   .argument('[name]', 'Optional: The name of the resource to be generated. Defaults to "new-ntw-resource".')
-  .action((type, name = 'new-ntw-resource') => {
-    generateApplication(type, name);
+  .action(async (type, name = 'new-ntw-resource') => {
+    await generateApplication(type, name);
   });
 
 program.addHelpCommand('help [command]', 'Show help for a specific command');
@@ -50,7 +54,7 @@ program.on('--help', () => {
   console.log('  $ ntw init demo');
   console.log('');
   console.log('Additional Information:');
-  console.log('  Ensure that ntw.config.json is present in order for commands like `ntw generate [appName]` to work.');
+  console.log('  Ensure that ntw.config.json with a valid ID is present in order for commands like `ntw generate [name]` to work.');
 });
 
 program.parse(process.argv);

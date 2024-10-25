@@ -11,18 +11,32 @@ function decode(encodedIdentifier) {
   return Buffer.from(encodedIdentifier, 'base64').toString('utf-8');
 }
 
-export function isNtwProject(projectPath) {
-  const configFilePath = path.join(projectPath, 'ntw.config.json');
+export function getNtwConfig(projectPath) {
+  const error = new Error(`A ntw.config.json with a valid ID was not found.\nThe current directory is not an NTW project. Please execute this command at the root of an NTW project with a valid ntw.config.json file and ID.`);
   
-  if (!fs.existsSync(configFilePath)) {
-    throw new Error('ntw.config.json not found.');
+  try {
+    const configFilePath = path.join(projectPath, 'ntw.config.json');
+
+    if (!fs.existsSync(configFilePath)) {
+      throw error;
+    }
+
+    const data = fs.readFileSync(configFilePath, 'utf-8');
+    const config = JSON.parse(data);
+    const decodedIdentifier = decode(config.id);
+    const valid = decodedIdentifier.includes('was made with NTW on');
+    const res = { valid, config };
+
+    if(!valid){
+      throw error;
+    }
+
+    return res;
+    
+  } catch (err) {
+    throw error;
   }
 
-  const data = fs.readFileSync(configFilePath, 'utf-8');
-  const config = JSON.parse(data);
-  const decodedIdentifier = decode(config.id);
-
-  return decodedIdentifier.includes('was made with NTW on');
 }
 
 export async function createConfigFile(projectPath, projectName) {
