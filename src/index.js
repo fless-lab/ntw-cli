@@ -54,7 +54,7 @@ program.on('--help', () => {
   console.log('  $ ntw init demo');
   console.log('');
   console.log('Additional Information:');
-  console.log('  Ensure that ntw.config.json is present in order for commands like `ntw generate [appName]` to work.');
+  console.log('  Ensure that ntw.config.json with a valid ID is present in order for commands like `ntw generate [name]` to work.');
 });
 
 program.parse(process.argv);
