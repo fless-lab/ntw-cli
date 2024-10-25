@@ -41,8 +41,8 @@ Type can be one of:
   - a, app: Aliases for "application"`
   )
   .argument('[name]', 'Optional: The name of the resource to be generated. Defaults to "new-ntw-resource".')
-  .action((type, name = 'new-ntw-resource') => {
-    generateApplication(type, name);
+  .action(async (type, name = 'new-ntw-resource') => {
+    await generateApplication(type, name);
   });
 
 program.addHelpCommand('help [command]', 'Show help for a specific command');
